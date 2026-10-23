@@ -131,22 +131,9 @@ footer p { margin: 3px 0; }
   .hbar-row { grid-template-columns: 1fr; gap: 2px; }
   .navbar a.nav-link { padding: 10px 10px; font-size: 0.9rem; }
 }
-.d3-demo {
-  max-width: 600px;
-  margin: 30px auto;
-  padding: 20px;
-  background: #f4f8fb;
-  border: 1px solid #d8e3ec;
-  border-radius: 8px;
-}
-
-.d3-caption {
-  color: #555;
-  font-size: 0.95rem;
-}
-
-#demo-svg {
-  background: white;
-  border: 1px solid #d8e3ec;
-  border-radius: 4px;
+.responsive-svg-container {
+    margin-right: auto;
+    margin-left: auto;
+    width: 100%;
+    max-width: 1200px;
 }
