@@ -8,15 +8,6 @@ const svg = d3.select(".responsive-svg-container")
       // Border is only used to see the canvas boundaries while developing
       .style("border", "1px solid black");
 
-// Test rectangle with hard-coded attributes (will be replaced by data-driven bars)
-svg
-  .append("rect")
-    .attr("x", 10)
-    .attr("y", 10)
-    .attr("width", 414)
-    .attr("height", 16)
-    .attr("fill", "blue");
-
 
 // ===== Exercise 4.4: load and prepare the data =====
 
@@ -41,15 +32,37 @@ d3.csv("data/tvBrandCount.csv", d => {
   data.sort((a, b) => b.count - a.count);
   console.log(data);
 
-  // Pass the prepared data to the function that will draw the chart
+  // Pass the prepared data to the function that draws the chart
   drawBarChart(data);
 });
 
 
-// ===== Placeholder for the next exercise =====
+// ===== Exercise 4.5: bind the data and draw the bars =====
 
-// This function will be built in the next exercise.
-// For now it only confirms that the data arrived correctly.
-function drawBarChart(data) {
-  console.log("drawBarChart received", data.length, "rows");
-}
+const drawBarChart = data => {
+
+  // Height of each bar and the gap between two bars (in svg units)
+  const barHeight = 20;
+  const spacing = 5;
+
+  svg
+    // Select all rect elements inside the svg (there are none yet)
+    .selectAll("rect")
+    // Bind one data row to each rect
+    .data(data)
+    // Create a rect for every data row that has no rect yet
+    .join("rect")
+      // Class name contains the count so the bars are easy to style or find later
+      .attr("class", d => `bar bar-${d.count}`)
+      // Width of the bar is the count of TVs
+      .attr("width", d => d.count)
+      // All bars have the same height
+      .attr("height", barHeight)
+      // Colour of the bars
+      .attr("fill", "orange")
+      // All bars start at the left edge of the svg
+      .attr("x", 0)
+      // Move each bar down by its position in the array (i) times (barHeight + spacing)
+      .attr("y", (d, i) => i * (barHeight + spacing));
+
+};
