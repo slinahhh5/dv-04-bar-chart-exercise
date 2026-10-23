@@ -4,7 +4,6 @@
 const svg = d3.select(".responsive-svg-container")
     .append("svg")
       // viewBox: min-x, min-y, width, height
-      // Width is 500 so the chart no longer fits without scales
       .attr("viewBox", "0 0 500 600")
       // Border is only used to see the canvas boundaries while developing
       .style("border", "1px solid black");
@@ -38,33 +37,38 @@ d3.csv("data/tvBrandCount.csv", d => {
 });
 
 
-// ===== Exercises 4.5 and 4.6: bind the data, scale it and draw the bars =====
+// ===== Exercises 4.5 to 4.7: bind the data, scale it, draw the bars and labels =====
 
 const drawBarChart = data => {
 
+  // Space on the left of the bars reserved for the brand labels (Exercise 4.7, step 1)
+  const labelWidth = 100;
+
   // Linear scale for the counts (continuous data) on the x-axis
-  // domain: the values in the data set, from 0 to a bit above the largest count
-  // range: the width in svg units that the bars may use (less than the viewBox width)
+  // range: the width in svg units the bars may use, leaving room for labels and values
   const xScale = d3.scaleLinear()
     .domain([0, 1200])
-    .range([0, 400]);
+    .range([0, 350]);
 
   // Band scale for the brands (categorical data) on the y-axis
-  // domain: one entry per brand
   // range: the height of the svg, so the bands share the available space
   const yScale = d3.scaleBand()
     .domain(data.map(d => d.brand))
     .range([0, 600])
-    // padding adds a gap between the bars (0 = no gap, 1 = no bar)
+    // padding adds a gap between the bars
     .padding(0.2);
 
-  svg
-    // Select all rect elements inside the svg (there are none yet)
-    .selectAll("rect")
-    // Bind one data row to each rect
+  // Create one group (g) per data row to keep each bar and its labels together
+  // The transform moves the whole group down to its vertical position
+  const barAndLabel = svg
+    .selectAll("g")
     .data(data)
-    // Create a rect for every data row that has no rect yet
-    .join("rect")
+    .join("g")
+      .attr("transform", d => `translate(0, ${yScale(d.brand)})`);
+
+  // Add a rectangle (the bar) to each group
+  barAndLabel
+    .append("rect")
       // Class name contains the count so the bars are easy to style or find later
       .attr("class", d => `bar bar-${d.count}`)
       // Width of the bar is the count converted by the linear scale
@@ -73,9 +77,30 @@ const drawBarChart = data => {
       .attr("height", yScale.bandwidth())
       // Colour of the bars
       .attr("fill", "orange")
-      // All bars start at the left edge of the svg
-      .attr("x", 0)
-      // Vertical position of the bar comes from the band scale for its brand
-      .attr("y", d => yScale(d.brand));
+      // Bars start after the space reserved for the labels
+      .attr("x", labelWidth)
+      // y is 0 because the group is already moved to the right height
+      .attr("y", 0);
+
+  // Add the brand name (category label) to each group
+  barAndLabel
+    .append("text")
+      .text(d => d.brand)
+      // Right edge of the text sits just before the bars
+      .attr("x", labelWidth - 10)
+      // Vertically centre the text on the bar
+      .attr("y", yScale.bandwidth() / 2 + 4)
+      // end = the text finishes at x, giving a right-aligned look
+      .attr("text-anchor", "end")
+      .style("font-size", "13px");
+
+  // Add the count (value label) at the end of each bar
+  barAndLabel
+    .append("text")
+      .text(d => d.count)
+      // Start of the text sits a little after the end of the bar
+      .attr("x", d => labelWidth + xScale(d.count) + 5)
+      .attr("y", yScale.bandwidth() / 2 + 4)
+      .style("font-size", "13px");
 
 };
